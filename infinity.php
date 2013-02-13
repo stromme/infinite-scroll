@@ -20,14 +20,14 @@ class The_Infinite_Scroll {
 	 *
 	 */
 	function __construct() {
-		add_filter( 'pre_get_posts',                  array( $this, 'posts_per_page_query' ) );
-
-		add_action( 'admin_init',                     array( $this, 'settings_api_init' ) );
-		add_action( 'template_redirect',              array( $this, 'action_template_redirect' ) );
-		add_action( 'template_redirect',              array( $this, 'ajax_response' ) );
-		add_action( 'custom_ajax_infinite_scroll',    array( $this, 'query' ) );
-		add_action( 'the_post',                       array( $this, 'preserve_more_tag' ) );
-		add_action( 'get_footer',                     array( $this, 'footer' ) );
+		add_filter( 'pre_get_posts',               array( $this, 'posts_per_page_query' ) );
+		add_action( 'admin_init',                  array( $this, 'settings_api_init' ) );
+		add_action( 'template_redirect',           array( $this, 'action_template_redirect' ) );
+		add_action( 'template_redirect',           array( $this, 'ajax_response' ) );
+    add_action( 'wp_enqueue_scripts',          array( $this, 'action_enqueue_scripts'), 11);
+		add_action( 'custom_ajax_infinite_scroll', array( $this, 'query' ) );
+		add_action( 'the_post',                    array( $this, 'preserve_more_tag' ) );
+		add_action( 'get_footer',                  array( $this, 'footer' ) );
 
 		// Parse IS settings from theme
 		self::get_settings();
@@ -302,9 +302,6 @@ class The_Infinite_Scroll {
 		// Add our default styles.
 		wp_enqueue_style( 'the-neverending-homepage', plugins_url( 'infinity.css', __FILE__ ), array(), '20120612' );
 
-    //Already loaded on infinity.js
-		//add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_spinner_scripts' ) );
-
 		add_action( 'wp_head', array( $this, 'action_wp_head' ), 2 );
 
 		add_action( 'wp_footer', array( $this, 'action_wp_footer' ), 99999999 );
@@ -315,8 +312,10 @@ class The_Infinite_Scroll {
 	/**
 	 * Enqueue spinner scripts.
 	 */
-	function enqueue_spinner_scripts() {
-		wp_enqueue_script( 'jquery.spin' );
+	function action_enqueue_scripts() {
+    if(!wp_script_is('toolbox-spinner')){
+      wp_enqueue_script('toolbox-spinner', plugins_url('spinner.min.js', __FILE__), array('jquery'), '20121205');
+    }
 	}
 
 	/**
@@ -470,6 +469,12 @@ class The_Infinite_Scroll {
 				'use_trailing_slashes' => $wp_rewrite->use_trailing_slashes
 			)
 		);
+
+    // Remove the scripts and styles parameters for custom post infinite-scroll
+    if(self::$settings['posts_args']){
+      unset($js_settings['scripts']);
+      unset($js_settings['styles']);
+    }
 
 		// Optional order param
 		if ( isset( $_GET['order'] ) ) {
