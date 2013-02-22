@@ -911,7 +911,7 @@ class The_Infinite_Scroll {
           sharing_register_post_for_share_counts( get_the_ID() );
         }
 
-        $results['postflair'] = array_flip( $jetpack_sharing_counts );
+        if($jetpack_sharing_counts) $results['postflair'] = array_flip( $jetpack_sharing_counts );
       }
     } else {
       do_action( 'infinite_scroll_empty' );
