@@ -907,11 +907,12 @@ class The_Infinite_Scroll {
 
         while( have_posts() ) {
           the_post();
-
-          sharing_register_post_for_share_counts( get_the_ID() );
+          // Fix permalink bug when jetpack loaded
+          if(get_permalink(get_the_ID()))
+            sharing_register_post_for_share_counts( get_the_ID() );
         }
 
-        if($jetpack_sharing_counts) $results['postflair'] = array_flip( $jetpack_sharing_counts );
+        $results['postflair'] = array_flip( $jetpack_sharing_counts );
       }
     } else {
       do_action( 'infinite_scroll_empty' );
