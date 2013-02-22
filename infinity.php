@@ -281,11 +281,42 @@ class The_Infinite_Scroll {
 
     // Force set time for custom arguments
     if(self::$settings['posts_args']){
-      $loop = new WP_Query( self::$settings['posts_args'] );
-      $posts = $loop->get_posts();
-      if(count($posts>0)){
-        $last_post = end($posts);
-        self::$the_time = $last_post->post_date_gmt;
+      $infinity_posts = array();
+
+      $post_type = self::$settings['posts_args']['post_type'];
+      if((is_array($post_type) && in_array('comment', $post_type) || !is_array($post_type) && $post_type=='comment')){
+        $args = (self::$settings['posts_args']['comment_args'])?self::$settings['posts_args']['comment_args']:array(
+          'orderby' => 'modified',
+          'order'   => 'DESC'
+        );
+        $args['number'] = -1;
+        $comments = get_comments($args);
+        if(count($comments)>0) {
+          foreach($comments as $comment){
+            $post = new StdClass();
+            $post->ID = intval($comment->comment_ID);
+            $post->post_title = $comment->comment_author;
+            $post->post_type = 'comment';
+            $post->post_date_gmt = $comment->comment_date_gmt;
+            $post->post_modified_gmt = $comment->comment_date_gmt;
+            $post->post_status = ($comment->comment_approved==1)?'approved':'pending';
+            array_push($infinity_posts, $post);
+          }
+        }
+      }
+
+      $args = self::$settings['posts_args'];
+      $args['posts_per_page'] = -1;
+      $loop = new WP_Query($args);
+      $posts = $loop->posts;
+      if(count($posts)>0) {
+        foreach($posts as $post){
+          array_push($infinity_posts, $post);
+        }
+      }
+      if(count($infinity_posts>0)){
+        $last_post = end($infinity_posts);
+        self::$the_time = $last_post->post_modified_gmt;
       }
     }
 
@@ -732,91 +763,160 @@ class The_Infinite_Scroll {
 			array_push( $post_status, 'private' );
 
 		$order = in_array( $_GET['order'], array( 'ASC', 'DESC' ) ) ? $_GET['order'] : 'DESC';
+
+    $custom_fetch_with_comments = false;
     // When using custom arguments, replace default settings with our settings
-    if(self::get_settings()->posts_args) $wp_the_query->query_vars = self::get_settings()->posts_args;
-		$query_args = array_merge( $wp_the_query->query_vars, array(
-			'paged'          => $page,
-			'post_status'    => $post_status,
-			'posts_per_page' => self::get_settings()->posts_per_page,
-			'post__not_in'   => ( array ) $sticky,
-			'order'          => $order
-		) );
+    if(self::get_settings()->posts_args){
+      $wp_the_query->query_vars = self::get_settings()->posts_args;
+      $post_type = self::get_settings()->posts_args['post_type'];
+      if((is_array($post_type) && in_array('comment', $post_type) || !is_array($post_type) && $post_type=='comment')){
+        $custom_fetch_with_comments = true;
+      }
+    }
 
-		// By default, don't query for a specific page of a paged post object.
-		// This argument comes from merging $wp_the_query.
-		// Since IS is only used on archives, we should always display the first page of any paged content.
-		unset( $query_args['page'] );
+    /*
+     * Modify a little bit, if the args has post type comment,
+     * but please preserve original plugin functionality
+     */
+    if(!$custom_fetch_with_comments){
+      $query_args = array_merge( $wp_the_query->query_vars, array(
+        'paged'          => $page,
+        'post_status'    => $post_status,
+        'posts_per_page' => self::get_settings()->posts_per_page,
+        'post__not_in'   => ( array ) $sticky,
+        'order'          => $order
+      ) );
 
-		$query_args = apply_filters( 'infinite_scroll_query_args', $query_args );
+      // By default, don't query for a specific page of a paged post object.
+      // This argument comes from merging $wp_the_query.
+      // Since IS is only used on archives, we should always display the first page of any paged content.
+      unset( $query_args['page'] );
 
-		// Add query filter that checks for posts below the date
-		add_filter( 'posts_where', array( $this, 'query_time_filter' ), 10, 2 );
+      $query_args = apply_filters( 'infinite_scroll_query_args', $query_args );
 
-		$wp_query = new WP_Query( $query_args );
+      // Add query filter that checks for posts below the date
+      add_filter( 'posts_where', array( $this, 'query_time_filter' ), 10, 2 );
 
-		remove_filter( 'posts_where', array( $this, 'query_time_filter' ), 10, 2 );
+      $wp_query = new WP_Query( $query_args );
 
-		$results = array();
+      remove_filter( 'posts_where', array( $this, 'query_time_filter' ), 10, 2 );
+    } else {
+      $infinity_posts = array();
+      $args = (self::$settings['posts_args']['comment_args'])?self::$settings['posts_args']['comment_args']:array(
+        'orderby' => 'modified',
+        'order'   => 'DESC'
+      );
+      $args['number'] = null;
+      $comments = get_comments($args);
+      /*
+       * Make comments as posts
+       */
+      if(count($comments)>0) {
+        foreach($comments as $comment){
+          $post = new StdClass();
+          $post->ID = intval($comment->comment_ID);
+          $post->post_title = $comment->comment_author;
+          $post->post_type = 'comment';
+          $post->post_date_gmt = $comment->comment_date_gmt;
+          $post->post_modified_gmt = $comment->comment_date_gmt;
+          $post->post_status = ($comment->comment_approved==1)?'approved':'pending';
+          array_push($infinity_posts, $post);
+        }
+      }
 
-		if ( have_posts() ) {
-			// Fire wp_head to ensure that all necessary scripts are enqueued. Output isn't used, but scripts are extracted in self::action_wp_footer.
-			ob_start();
-			wp_head();
-			ob_end_clean();
+      $args = self::$settings['posts_args'];
+      $args['posts_per_page'] = -1;
+      $loop = new WP_Query($args);
+      $posts = $loop->posts;
+      if(count($posts)>0) {
+        foreach($posts as $post){
+          array_push($infinity_posts, $post);
+        }
+      }
 
-			$results['type'] = 'success';
+      $loaded_posts = array();
+      $per_page = self::$settings['posts_args']['posts_per_page'];
+      if(count($infinity_posts)>0){
+        function isort($a,$b) {
+          return strcmp($a->post_modified_gmt, $b->post_modified_gmt)<0;
+        }
+        usort($infinity_posts, "isort");
+        for($i=$page*$per_page;$i<($page*$per_page)+$per_page && $i<count($infinity_posts);$i++){
+          array_push($loaded_posts, $infinity_posts[$i]);
+        }
+      }
 
-			// First, try theme's specified rendering handler, either specified via `add_theme_support` or by hooking to this action directly.
-			ob_start();
-			do_action( 'infinite_scroll_render' );
-			$results['html'] = ob_get_clean();
+      /*
+       * Resemble the actual $wp_query content
+       */
+      $loop->post_count    = count($loaded_posts);
+      $loop->current_post  = -1;
+      $loop->found_posts   = count($infinity_posts);
+      $loop->max_num_pages = round(count($infinity_posts)/$per_page);
+      $loop->posts         = $loaded_posts;
+      $wp_query = $loop;
+    }
 
-			// Fall back if a theme doesn't specify a rendering function. Because themes may hook additional functions to the `infinite_scroll_render` action, `has_action()` is ineffective here.
-			if ( empty( $results['html'] ) ) {
-				add_action( 'infinite_scroll_render', array( $this, 'render' ) );
-				rewind_posts();
+    $results = array();
 
-				ob_start();
-				do_action( 'infinite_scroll_render' );
-				$results['html'] = ob_get_clean();
-			}
+    if ( have_posts() ) {
+      // Fire wp_head to ensure that all necessary scripts are enqueued. Output isn't used, but scripts are extracted in self::action_wp_footer.
+      ob_start();
+      wp_head();
+      ob_end_clean();
 
-			// If primary and fallback rendering methods fail, prevent further IS rendering attempts. Otherwise, wrap the output if requested.
-			if ( empty( $results['html'] ) ) {
-				unset( $results['html'] );
-				do_action( 'infinite_scroll_empty' );
-				$results['type'] = 'empty';
-			}
-			elseif ( $this->has_wrapper() ) {
-				$wrapper_classes = is_string( self::get_settings()->wrapper ) ? self::get_settings()->wrapper : 'infinite-wrap';
-				$wrapper_classes .= ' infinite-view-' . $page;
-				$wrapper_classes = trim( $wrapper_classes );
+      $results['type'] = 'success';
 
-				$results['html'] = '<div class="' . esc_attr( $wrapper_classes ) . '" id="infinite-view-' . $page . '" data-page-num="' . $page . '">' . $results['html'] . '</div>';
-			}
+      // First, try theme's specified rendering handler, either specified via `add_theme_support` or by hooking to this action directly.
+      ob_start();
+      do_action( 'infinite_scroll_render' );
+      $results['html'] = ob_get_clean();
 
-			// Fire wp_footer to ensure that all necessary scripts are enqueued. Output isn't used, but scripts are extracted in self::action_wp_footer.
-			ob_start();
-			wp_footer();
-			ob_end_clean();
+      // Fall back if a theme doesn't specify a rendering function. Because themes may hook additional functions to the `infinite_scroll_render` action, `has_action()` is ineffective here.
+      if ( empty( $results['html'] ) ) {
+        add_action( 'infinite_scroll_render', array( $this, 'render' ) );
+        rewind_posts();
 
-			// Loop through posts to capture sharing data for new posts loaded via Infinite Scroll
-			if ( 'success' == $results['type'] && function_exists( 'sharing_register_post_for_share_counts' ) ) {
-				global $jetpack_sharing_counts;
+        ob_start();
+        do_action( 'infinite_scroll_render' );
+        $results['html'] = ob_get_clean();
+      }
 
-				while( have_posts() ) {
-					the_post();
+      // If primary and fallback rendering methods fail, prevent further IS rendering attempts. Otherwise, wrap the output if requested.
+      if ( empty( $results['html'] ) ) {
+        unset( $results['html'] );
+        do_action( 'infinite_scroll_empty' );
+        $results['type'] = 'empty';
+      }
+      elseif ( $this->has_wrapper() ) {
+        $wrapper_classes = is_string( self::get_settings()->wrapper ) ? self::get_settings()->wrapper : 'infinite-wrap';
+        $wrapper_classes .= ' infinite-view-' . $page;
+        $wrapper_classes = trim( $wrapper_classes );
 
-					sharing_register_post_for_share_counts( get_the_ID() );
-				}
+        $results['html'] = '<div class="' . esc_attr( $wrapper_classes ) . '" id="infinite-view-' . $page . '" data-page-num="' . $page . '">' . $results['html'] . '</div>';
+      }
 
-				$results['postflair'] = array_flip( $jetpack_sharing_counts );
-			}
-		} else {
-			do_action( 'infinite_scroll_empty' );
-			$results['type'] = 'empty';
-		}
+      // Fire wp_footer to ensure that all necessary scripts are enqueued. Output isn't used, but scripts are extracted in self::action_wp_footer.
+      ob_start();
+      wp_footer();
+      ob_end_clean();
 
+      // Loop through posts to capture sharing data for new posts loaded via Infinite Scroll
+      if ( 'success' == $results['type'] && function_exists( 'sharing_register_post_for_share_counts' ) ) {
+        global $jetpack_sharing_counts;
+
+        while( have_posts() ) {
+          the_post();
+
+          sharing_register_post_for_share_counts( get_the_ID() );
+        }
+
+        $results['postflair'] = array_flip( $jetpack_sharing_counts );
+      }
+    } else {
+      do_action( 'infinite_scroll_empty' );
+      $results['type'] = 'empty';
+    }
 		echo json_encode( apply_filters( 'infinite_scroll_results', $results ) );
 		die;
 	}
