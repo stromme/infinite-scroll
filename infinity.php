@@ -289,7 +289,7 @@ class The_Infinite_Scroll {
           'orderby' => 'modified',
           'order'   => 'DESC'
         );
-        $args['number'] = -1;
+        $args['number'] = null; // Load all comments
         $comments = get_comments($args);
         if(count($comments)>0) {
           foreach($comments as $comment){
@@ -306,7 +306,7 @@ class The_Infinite_Scroll {
       }
 
       $args = self::$settings['posts_args'];
-      $args['posts_per_page'] = -1;
+      $args['posts_per_page'] = -1; // Load all posts
       $loop = new WP_Query($args);
       $posts = $loop->posts;
       if(count($posts)>0) {
@@ -778,54 +778,35 @@ class The_Infinite_Scroll {
      * Modify a little bit, if the args has post type comment,
      * but please preserve original plugin functionality
      */
-    if(!$custom_fetch_with_comments){
-      $query_args = array_merge( $wp_the_query->query_vars, array(
-        'paged'          => $page,
-        'post_status'    => $post_status,
-        'posts_per_page' => self::get_settings()->posts_per_page,
-        'post__not_in'   => ( array ) $sticky,
-        'order'          => $order
-      ) );
-
-      // By default, don't query for a specific page of a paged post object.
-      // This argument comes from merging $wp_the_query.
-      // Since IS is only used on archives, we should always display the first page of any paged content.
-      unset( $query_args['page'] );
-
-      $query_args = apply_filters( 'infinite_scroll_query_args', $query_args );
-
-      // Add query filter that checks for posts below the date
-      add_filter( 'posts_where', array( $this, 'query_time_filter' ), 10, 2 );
-
-      $wp_query = new WP_Query( $query_args );
-
-      remove_filter( 'posts_where', array( $this, 'query_time_filter' ), 10, 2 );
-    } else {
+    if(self::get_settings()->posts_args){
       $infinity_posts = array();
-      $args = (self::$settings['posts_args']['comment_args'])?self::$settings['posts_args']['comment_args']:array(
-        'orderby' => 'modified',
-        'order'   => 'DESC'
-      );
-      $args['number'] = null;
-      $comments = get_comments($args);
-      /*
-       * Make comments as posts
-       */
-      if(count($comments)>0) {
-        foreach($comments as $comment){
-          $post = new StdClass();
-          $post->ID = intval($comment->comment_ID);
-          $post->post_title = $comment->comment_author;
-          $post->post_type = 'comment';
-          $post->post_date_gmt = $comment->comment_date_gmt;
-          $post->post_modified_gmt = $comment->comment_date_gmt;
-          $post->post_status = ($comment->comment_approved==1)?'approved':'pending';
-          array_push($infinity_posts, $post);
+
+      if($custom_fetch_with_comments){
+        $args = (self::$settings['posts_args']['comment_args'])?self::$settings['posts_args']['comment_args']:array(
+          'orderby' => 'modified',
+          'order'   => 'DESC'
+        );
+        $args['number'] = null; // Load all comments
+        $comments = get_comments($args);
+        /*
+         * Make comments as posts
+         */
+        if(count($comments)>0) {
+          foreach($comments as $comment){
+            $post = new StdClass();
+            $post->ID = intval($comment->comment_ID);
+            $post->post_title = $comment->comment_author;
+            $post->post_type = 'comment';
+            $post->post_date_gmt = $comment->comment_date_gmt;
+            $post->post_modified_gmt = $comment->comment_date_gmt;
+            $post->post_status = ($comment->comment_approved==1)?'approved':'pending';
+            array_push($infinity_posts, $post);
+          }
         }
       }
 
       $args = self::$settings['posts_args'];
-      $args['posts_per_page'] = -1;
+      $args['posts_per_page'] = -1; // Load all posts
       $loop = new WP_Query($args);
       $posts = $loop->posts;
       if(count($posts)>0) {
@@ -855,6 +836,29 @@ class The_Infinite_Scroll {
       $loop->max_num_pages = round(count($infinity_posts)/$per_page);
       $loop->posts         = $loaded_posts;
       $wp_query = $loop;
+    }
+    else {
+      $query_args = array_merge( $wp_the_query->query_vars, array(
+        'paged'          => $page,
+        'post_status'    => $post_status,
+        'posts_per_page' => self::get_settings()->posts_per_page,
+        'post__not_in'   => ( array ) $sticky,
+        'order'          => $order
+      ) );
+
+      // By default, don't query for a specific page of a paged post object.
+      // This argument comes from merging $wp_the_query.
+      // Since IS is only used on archives, we should always display the first page of any paged content.
+      unset( $query_args['page'] );
+
+      $query_args = apply_filters( 'infinite_scroll_query_args', $query_args );
+
+      // Add query filter that checks for posts below the date
+      add_filter( 'posts_where', array( $this, 'query_time_filter' ), 10, 2 );
+
+      $wp_query = new WP_Query( $query_args );
+
+      remove_filter( 'posts_where', array( $this, 'query_time_filter' ), 10, 2 );
     }
 
     $results = array();
