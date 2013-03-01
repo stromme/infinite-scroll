@@ -1,11 +1,11 @@
 <?php
 /*
-Plugin Name: The Infinite Scroll
-Plugin URI: http://jetpack.me
+Plugin Name: Infinite Scroll
+Plugin URI: http://uzbuz.com
 Description: Adds infinite scrolling support to the front-end blog post view for themes, pulling the next set of posts automatically into view when the reader approaches the bottom of the page.
-Version: 1.1
-Author: Jetpack.me
-Author URI: http://jetpack.me
+Version: 5
+Author: Josua
+Author URI: http://uzbuz.com
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
