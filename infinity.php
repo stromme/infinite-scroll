@@ -422,10 +422,14 @@ class The_Infinite_Scroll {
 	 * @return null
 	 */
 	function posts_per_page_query( $query ) {
-		global $wp_the_query;
+    // Run this only if the location is outside admin,
+    // otherwise the modification to $wp_the_query may cause some unwanted bug
+    if(!function_exists('get_current_screen')){
+      global $wp_the_query;
 
-		if ( self::archive_supports_infinity() && $query === $wp_the_query ) // After 3.3, this line would be: if ( self::archive_supports_infinity() && $query->is_main_query() )
-			$query->set( 'posts_per_page', self::get_settings()->posts_per_page );
+      if ( self::archive_supports_infinity() && $query === $wp_the_query ) // After 3.3, this line would be: if ( self::archive_supports_infinity() && $query->is_main_query() )
+        $query->set( 'posts_per_page', self::get_settings()->posts_per_page );
+    }
 	}
 
 	/**
