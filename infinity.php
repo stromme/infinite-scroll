@@ -297,9 +297,12 @@ class The_Infinite_Scroll {
             $post->ID = intval($comment->comment_ID);
             $post->post_title = $comment->comment_author;
             $post->post_type = 'comment';
+            $post->post_date = $comment->comment_date_gmt;
             $post->post_date_gmt = $comment->comment_date_gmt;
             $post->post_modified_gmt = $comment->comment_date_gmt;
             $post->post_status = ($comment->comment_approved==1)?'approved':'pending';
+            $post->post_author = get_current_user_id();
+            $post->post_content = $comment->comment_content;
             array_push($infinity_posts, $post);
           }
         }
@@ -801,9 +804,12 @@ class The_Infinite_Scroll {
             $post->ID = intval($comment->comment_ID);
             $post->post_title = $comment->comment_author;
             $post->post_type = 'comment';
+            $post->post_date = $comment->comment_date;
             $post->post_date_gmt = $comment->comment_date_gmt;
             $post->post_modified_gmt = $comment->comment_date_gmt;
             $post->post_status = ($comment->comment_approved==1)?'approved':'pending';
+            $post->post_author = get_current_user_id();
+            $post->post_content = $comment->comment_content;
             array_push($infinity_posts, $post);
           }
         }
