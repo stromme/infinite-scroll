@@ -290,6 +290,9 @@ class The_Infinite_Scroll {
           'order'   => 'DESC'
         );
         $args['number'] = null; // Load all comments
+        $exclude = $args['exclude'];
+        unset($args['exclude']);
+        unset($args['success_callback']);
         $comments = get_comments($args);
         if(count($comments)>0) {
           foreach($comments as $comment){
@@ -303,18 +306,60 @@ class The_Infinite_Scroll {
             $post->post_status = ($comment->comment_approved==1)?'approved':'pending';
             $post->post_author = get_current_user_id();
             $post->post_content = $comment->comment_content;
-            array_push($infinity_posts, $post);
+            $included = true;
+            if(isset($exclude) && is_array($exclude) && count($exclude)>0){
+              foreach($exclude as $key=>$ex){
+                switch($key){
+                  case 'comment_meta':
+                    if(is_array($ex) && count($ex)>0){
+                      foreach($ex as $cm){
+                        ${$cm['name']} = get_comment_meta($comment->comment_ID, $cm['name'], true);
+                        if($cm['compare']=='='){
+                          if(${$cm['name']}==$cm['value']) $included = false;
+                        }
+                        else if($cm['compare']=='!='){
+                          if(${$cm['name']}!=$cm['value']) $included = false;
+                        }
+                      }
+                    }
+                    break;
+                }
+              }
+            }
+            if($included) array_push($infinity_posts, $post);
           }
         }
       }
 
       $args = self::$settings['posts_args'];
+      $exclude = $args['exclude'];
+      unset($args['exclude']);
       $args['posts_per_page'] = -1; // Load all posts
       $loop = new WP_Query($args);
       $posts = $loop->posts;
       if(count($posts)>0) {
         foreach($posts as $post){
-          array_push($infinity_posts, $post);
+          $included = true;
+          if(isset($exclude) && is_array($exclude) && count($exclude)>0){
+            foreach($exclude as $key=>$ex){
+              switch($key){
+                case 'post_meta':
+                  if(is_array($ex) && count($ex)>0){
+                    foreach($ex as $pm){
+                      ${$pm['name']} = get_post_meta($post->ID, $pm['name'], true);
+                      if($pm['compare']=='='){
+                        if(${$pm['name']}==$pm['value']) $included = false;
+                      }
+                      else if($pm['compare']=='!='){
+                        if(${$pm['name']}!=$pm['value']) $included = false;
+                      }
+                    }
+                  }
+                  break;
+              }
+            }
+          }
+          if($included) array_push($infinity_posts, $post);
         }
       }
       if(count($infinity_posts>0)){
@@ -530,6 +575,9 @@ class The_Infinite_Scroll {
 		<script type="text/javascript">
 		//<![CDATA[
 		var infiniteScroll = <?php echo json_encode( array( 'settings' => $js_settings ) ); ?>;
+    <?php if(isset(self::$settings['posts_args']['success_callback'])){ ?>
+      infiniteScroll.success_callback = <?=self::$settings['posts_args']['success_callback']?>
+    <?php } ?>
 		//]]>
 		</script>
 		<?php
@@ -794,6 +842,9 @@ class The_Infinite_Scroll {
           'order'   => 'DESC'
         );
         $args['number'] = null; // Load all comments
+        $comments_exclude = $args['exclude'];
+        unset($args['exclude']);
+        unset($args['success_callback']);
         $comments = get_comments($args);
         /*
          * Make comments as posts
@@ -816,6 +867,8 @@ class The_Infinite_Scroll {
       }
 
       $args = self::$settings['posts_args'];
+      $posts_exclude = $args['exclude'];
+      unset($args['exclude']);
       $args['posts_per_page'] = -1; // Load all posts
       $loop = new WP_Query($args);
       $posts = $loop->posts;
@@ -833,7 +886,49 @@ class The_Infinite_Scroll {
         }
         usort($infinity_posts, "isort");
         for($i=$page*$per_page;$i<($page*$per_page)+$per_page && $i<count($infinity_posts);$i++){
-          array_push($loaded_posts, $infinity_posts[$i]);
+          $included = true;
+          if($infinity_posts[$i]->post_type=='comment'){
+            if(isset($comments_exclude) && is_array($comments_exclude) && count($comments_exclude)>0){
+              foreach($comments_exclude as $key=>$ex){
+                switch($key){
+                  case 'comment_meta':
+                    if(is_array($ex) && count($ex)>0){
+                      foreach($ex as $cm){
+                        ${$cm['name']} = get_comment_meta($infinity_posts[$i]->ID, $cm['name'], true);
+                        if($cm['compare']=='='){
+                          if(${$cm['name']}==$cm['value']) $included = false;
+                        }
+                        else if($cm['compare']=='!='){
+                          if(${$cm['name']}!=$cm['value']) $included = false;
+                        }
+                      }
+                    }
+                    break;
+                }
+              }
+            }
+          } else {
+            if(isset($posts_exclude) && is_array($posts_exclude) && count($posts_exclude)>0){
+              foreach($posts_exclude as $key=>$ex){
+                switch($key){
+                  case 'post_meta':
+                    if(is_array($ex) && count($ex)>0){
+                      foreach($ex as $pm){
+                        ${$pm['name']} = get_post_meta($infinity_posts[$i]->ID, $pm['name'], true);
+                        if($pm['compare']=='='){
+                          if(${$pm['name']}==$pm['value']) $included = false;
+                        }
+                        else if($pm['compare']=='!='){
+                          if(${$pm['name']}!=$pm['value']) $included = false;
+                        }
+                      }
+                    }
+                    break;
+                }
+              }
+            }
+          }
+          if($included) array_push($loaded_posts, $infinity_posts[$i]);
         }
       }
 
@@ -874,6 +969,7 @@ class The_Infinite_Scroll {
     $results = array();
 
     if ( have_posts() ) {
+
       // Fire wp_head to ensure that all necessary scripts are enqueued. Output isn't used, but scripts are extracted in self::action_wp_footer.
       ob_start();
       wp_head();

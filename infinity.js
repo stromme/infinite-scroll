@@ -287,6 +287,10 @@ Scroller.prototype.refresh = function() {
 				// Fire Google Analytics pageview
 				if ( self.google_analytics && 'object' == typeof _gaq )
 					_gaq.push(['_trackPageview', self.history.path.replace( /%d/, self.page ) ]);
+
+        if(typeof(infiniteScroll.success_callback)=='function'){
+          infiniteScroll.success_callback();
+        }
 			}
 		});
 
@@ -468,7 +472,7 @@ $( document ).ready( function() {
 	// Define what type of infinity we have, grab text for click-handle
 	type  = infiniteScroll.settings.type;
 	text  = infiniteScroll.settings.text;
-	totop = infiniteScroll.settings.totop;
+	totop = infiniteScroll.settings.top;
 
 	// Initialize the scroller (with the ID of the element from the theme)
 	infiniteScroll.scroller = new Scroller( infiniteScroll.settings );
@@ -481,7 +485,8 @@ $( document ).ready( function() {
 if ( ! isIE || ( isIE && IEVersion >= 10 ) ) {
 	$( window ).bind( 'scroll', function() {
 		clearTimeout( timer );
-		timer = setTimeout( infiniteScroll.scroller.determineURL , 100 );
+    if(infiniteScroll.scroller)
+		  timer = setTimeout( infiniteScroll.scroller.determineURL , 100 );
 	});
 }
 
