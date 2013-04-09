@@ -108,7 +108,7 @@ Scroller.prototype.render = function( response ) {
  */
 Scroller.prototype.query = function() {
 	return {
-		page:  this.page,
+		//page:  this.page,
 		order: this.order,
 		scripts: window.infiniteScroll.settings.scripts,
 		styles: window.infiniteScroll.settings.styles
@@ -186,7 +186,9 @@ Scroller.prototype.refresh = function() {
 	}, this.query() );
 
 	// Fire the ajax request.
-	jqxhr = $.get( infiniteScroll.settings.ajaxurl, query );
+  var new_ajaxurl = infiniteScroll.settings.ajaxurl;
+  new_ajaxurl = new_ajaxurl.replace("?infinity=scrolling", this.page+"/"+"?infinity=scrolling");
+	jqxhr = $.get( new_ajaxurl, query );
 
 	// Allow refreshes to occur again if an error is triggered.
 	jqxhr.fail( function() {
