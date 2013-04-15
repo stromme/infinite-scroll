@@ -32,6 +32,7 @@ Scroller = function( settings ) {
 	this.google_analytics = settings.google_analytics;
 	this.history          = settings.history;
 	this.origURL          = window.location.href;
+  this.force_check      = false;
 
 	// Footer settings
 	this.footer           = $( '#infinite-footer' );
@@ -87,7 +88,7 @@ Scroller.prototype.check = function() {
 	var bottom = this.window.scrollTop() + this.window.height(),
 		threshold = this.element.offset().top + this.element.outerHeight() - this.window.height();
 
-	return bottom > threshold;
+	return (bottom > threshold) || this.force_check;
 };
 
 /**
