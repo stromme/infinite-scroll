@@ -885,6 +885,48 @@ class The_Infinite_Scroll {
           return strcmp($a->post_modified_gmt, $b->post_modified_gmt)<0;
         }
         usort($infinity_posts, "isort");
+
+        if($custom_fetch_with_comments){
+          $projects_count = 0;
+          $reviews_count = 0;
+          $init_fetch = array();
+          for($i=0;$i<count($infinity_posts) && $i<$per_page;$i++){
+            $ip = $infinity_posts[$i];
+            if($ip->post_type=="showroom") $projects_count++;
+            if($ip->post_type=="comment") $reviews_count++;
+            array_push($init_fetch, $ip);
+          }
+          $next_projects = array();
+          $next_reviews = array();
+          if($projects_count<$per_page || $reviews_count<$per_page){
+            if(count($infinity_posts)>$per_page){
+              for($i=$per_page;$i<count($infinity_posts) && ($projects_count<$per_page || $reviews_count<$per_page);$i++){
+                $ip = $infinity_posts[$i];
+                if($ip->post_type=="showroom" && $projects_count<$per_page){
+                  array_push($next_projects, $ip);
+                  $projects_count++;
+                  unset($infinity_posts[$i]);
+                }
+                if($ip->post_type=="comment" && $reviews_count<$per_page){
+                  array_push($next_reviews, $ip);
+                  $reviews_count++;
+                  unset($infinity_posts[$i]);
+                }
+              }
+            }
+          }
+          $reset_infinity = array_merge($infinity_posts);
+          $rest_infinity = array();
+          if(count($reset_infinity)>10){
+            for($i=10;$i<count($reset_infinity);$i++){
+              array_push($rest_infinity, $reset_infinity[$i]);
+            }
+          }
+          $infinity_posts = array_merge($init_fetch, $next_projects);
+          $infinity_posts = array_merge($infinity_posts, $next_reviews);
+          $infinity_posts = array_merge($infinity_posts, $rest_infinity);
+        }
+
         for($i=$page*$per_page;$i<($page*$per_page)+$per_page && $i<count($infinity_posts);$i++){
           $included = true;
           if($infinity_posts[$i]->post_type=='comment'){
