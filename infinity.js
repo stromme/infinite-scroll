@@ -60,7 +60,12 @@ Scroller = function( settings ) {
 				// Reveal or hide footer
 				self.thefooter();
 				// Fire the refresh
-				self.refresh();
+        var container = $('#'+window.infiniteScroll.scroller.id);
+        var bottom = container.outerHeight()+container.offset()['top'];
+        var windowHeight = $(window).height();
+        var windowTop    = $( window ).scrollTop();
+
+        if((windowTop+windowHeight)>=bottom) self.refresh();
 			}
 		}, 300 );
 
@@ -488,8 +493,9 @@ $( document ).ready( function() {
 if ( ! isIE || ( isIE && IEVersion >= 10 ) ) {
 	$( window ).bind( 'scroll', function() {
 		clearTimeout( timer );
-    if(infiniteScroll.scroller)
+    if(infiniteScroll.scroller){
 		  timer = setTimeout( infiniteScroll.scroller.determineURL , 100 );
+    }
 	});
 }
 

@@ -924,6 +924,7 @@ class The_Infinite_Scroll {
           }
           $infinity_posts = array_merge($init_fetch, $next_projects);
           $infinity_posts = array_merge($infinity_posts, $next_reviews);
+          usort($infinity_posts, "isort");
           $infinity_posts = array_merge($infinity_posts, $rest_infinity);
         }
 
