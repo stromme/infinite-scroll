@@ -337,6 +337,7 @@ class The_Infinite_Scroll {
       $args['posts_per_page'] = -1; // Load all posts
       $loop = new WP_Query($args);
       $posts = $loop->posts;
+      unset($loop);
       if(count($posts)>0) {
         foreach($posts as $post){
           $included = true;
@@ -361,9 +362,11 @@ class The_Infinite_Scroll {
           }
           if($included) array_push($infinity_posts, $post);
         }
+        unset($posts);
       }
       if(count($infinity_posts>0)){
         $last_post = end($infinity_posts);
+        unset($infinity_posts);
         self::$the_time = $last_post->post_modified_gmt;
       }
     }
@@ -863,6 +866,7 @@ class The_Infinite_Scroll {
             $post->post_content = $comment->comment_content;
             array_push($infinity_posts, $post);
           }
+          unset($loaded_posts);
         }
       }
 
@@ -876,6 +880,7 @@ class The_Infinite_Scroll {
         foreach($posts as $post){
           array_push($infinity_posts, $post);
         }
+        unset($posts);
       }
 
       $loaded_posts = array();
@@ -924,11 +929,15 @@ class The_Infinite_Scroll {
           }
           $infinity_posts = array_merge($init_fetch, $next_projects);
           $infinity_posts = array_merge($infinity_posts, $next_reviews);
+          unset($next_projects);
+          unset($next_reviews);
           usort($infinity_posts, "isort");
           $infinity_posts = array_merge($infinity_posts, $rest_infinity);
+          unset($rest_infinity);
         }
 
-        for($i=$page*$per_page;$i<($page*$per_page)+$per_page && $i<count($infinity_posts);$i++){
+        $count_infinity = count($infinity_posts);
+        for($i=$page*$per_page;$i<($page*$per_page)+$per_page && $i<$count_infinity;$i++){
           $included = true;
           if($infinity_posts[$i]->post_type=='comment'){
             if(isset($comments_exclude) && is_array($comments_exclude) && count($comments_exclude)>0){
@@ -981,9 +990,12 @@ class The_Infinite_Scroll {
       $loop->post_count    = count($loaded_posts);
       $loop->current_post  = -1;
       $loop->found_posts   = count($infinity_posts);
-      $loop->max_num_pages = round(count($infinity_posts)/$per_page);
+      $loop->max_num_pages = round($loop->found_posts/$per_page);
       $loop->posts         = $loaded_posts;
       $wp_query = $loop;
+      unset($loop);
+      unset($infinity_posts);
+      unset($loaded_posts);
     }
     else {
       $query_args = array_merge( $wp_the_query->query_vars, array(
