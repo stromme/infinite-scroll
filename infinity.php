@@ -290,7 +290,7 @@ class The_Infinite_Scroll {
           'order'   => 'DESC'
         );
         $args['number'] = null; // Load all comments
-        $exclude = $args['exclude'];
+        $exclude = (isset($args['exclude']))?$args['exclude']:'';
         unset($args['exclude']);
         unset($args['success_callback']);
         $comments = get_comments($args);
@@ -332,7 +332,7 @@ class The_Infinite_Scroll {
       }
 
       $args = self::$settings['posts_args'];
-      $exclude = $args['exclude'];
+      $exclude = (isset($args['exclude']))?$args['exclude']:'';
       unset($args['exclude']);
       $args['posts_per_page'] = -1; // Load all posts
       $loop = new WP_Query($args);
