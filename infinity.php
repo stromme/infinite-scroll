@@ -367,7 +367,7 @@ class The_Infinite_Scroll {
       if(count($infinity_posts>0)){
         $last_post = end($infinity_posts);
         unset($infinity_posts);
-        self::$the_time = $last_post->post_modified_gmt;
+        self::$the_time = (isset($last_post->post_modified_gmt)?$last_post->post_modified_gmt:'');
       }
     }
 
