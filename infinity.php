@@ -807,11 +807,11 @@ class The_Infinite_Scroll {
     // Sometimes page=1 is redirected by wordpress to /1/. We need to trick it.
     if(!isset($_GET['page']) && basename($_SERVER['REDIRECT_URL'])) $_GET['page']=basename($_SERVER['REDIRECT_URL']);
 
-    echo "hahah";
-
 
 		if ( ! isset( $_GET['page'] ) || ! current_theme_supports( 'infinite-scroll' ) )
 			die;
+
+    echo "hahah";
 
 		$page = (int) $_GET['page'];
 		$sticky = get_option( 'sticky_posts' );
@@ -835,11 +835,14 @@ class The_Infinite_Scroll {
       }
     }
 
+    echo "heehehh";
+
     /*
      * Modify a little bit, if the args has post type comment,
      * but please preserve original plugin functionality
      */
     if(self::get_settings()->posts_args){
+      echo "in";
       $infinity_posts = array();
 
       if($custom_fetch_with_comments){
@@ -872,6 +875,8 @@ class The_Infinite_Scroll {
           unset($loaded_posts);
         }
       }
+
+      echo "after";
 
       $args = self::$settings['posts_args'];
       $posts_exclude = (isset($args['exclude']))?$args['exclude']:'';
