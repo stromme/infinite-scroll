@@ -810,7 +810,8 @@ class The_Infinite_Scroll {
 		if ( ! isset( $_GET['page'] ) || ! current_theme_supports( 'infinite-scroll' ) )
 			die;
 
-		$page = (int) $_GET['page']+1;
+    $_GET['page'] = 1;
+		$page = (int) $_GET['page'];
 		$sticky = get_option( 'sticky_posts' );
 
 		if ( ! empty( $_GET['date'] ) )
@@ -1083,6 +1084,10 @@ class The_Infinite_Scroll {
       do_action( 'infinite_scroll_empty' );
       $results['type'] = 'empty';
     }
+
+    $results['page'] = $page;
+    $results['max_page'] = $wp_query->max_num_pages;
+    $results['requesturl'] = basename($_SERVER['REQUEST_URI']);
 
     if($page>($wp_query->max_num_pages)){
       echo "inside";
