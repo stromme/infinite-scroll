@@ -279,10 +279,6 @@ class The_Infinite_Scroll {
 		if ( empty( $id ) )
 			return;
 
-    echo "<!-- ";
-    var_dump(self::$settings['posts_args']);
-    echo " -->";
-
     // Force set time for custom arguments
     if(self::$settings['posts_args']){
       $infinity_posts = array();
@@ -335,6 +331,8 @@ class The_Infinite_Scroll {
         }
       }
 
+      echo "<br /><br />";
+
       $args = self::$settings['posts_args'];
       $exclude = (isset($args['exclude']))?$args['exclude']:'';
       unset($args['exclude']);
@@ -374,6 +372,8 @@ class The_Infinite_Scroll {
         self::$the_time = (isset($last_post->post_modified_gmt)?$last_post->post_modified_gmt:'');
       }
     }
+
+    echo "<br /><br />";
 
 		// Bail if there are not enough posts for infinity.
 		if ( ! self::set_last_post_time() )
