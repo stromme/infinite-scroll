@@ -805,10 +805,12 @@ class The_Infinite_Scroll {
 		global $wp_query, $wp_the_query;
 
     // Sometimes page=1 is redirected by wordpress to /1/. We need to trick it.
-    //if(!isset($_GET['page']) && basename($_SERVER['REDIRECT_URL'])) $_GET['page']=basename($_SERVER['REDIRECT_URL']);
+    if(!isset($_GET['page']) && basename($_SERVER['REDIRECT_URL'])) $_GET['page']=basename($_SERVER['REDIRECT_URL']);
 
-		//if ( ! isset( $_GET['page'] ) || ! current_theme_supports( 'infinite-scroll' ) )
-			//die;
+    var_dump(basename($_SERVER['REDIRECT_URL'])));
+
+		if ( ! isset( $_GET['page'] ) || ! current_theme_supports( 'infinite-scroll' ) )
+			die;
 
     $_GET['page'] = 1;
 		$page = (int) $_GET['page'];
