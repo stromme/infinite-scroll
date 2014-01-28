@@ -816,7 +816,6 @@ class The_Infinite_Scroll {
 		if ( ! isset( $_GET['page'] ) || ! current_theme_supports( 'infinite-scroll' ) )
 			die;
 
-    $_GET['page'] = 1;
 		$page = (int) $_GET['page'];
 		$sticky = get_option( 'sticky_posts' );
 
