@@ -275,11 +275,11 @@ class The_Infinite_Scroll {
 
 		$id = self::get_settings()->container;
 
-    echo "<br /><br /><br />".'--';
-
 		// Check that we have an id.
 		if ( empty( $id ) )
 			return;
+
+    echo "<br /><br />";
 
     // Force set time for custom arguments
     if(self::$settings['posts_args']){
