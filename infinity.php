@@ -807,7 +807,7 @@ class The_Infinite_Scroll {
     // Sometimes page=1 is redirected by wordpress to /1/. We need to trick it.
     if(!isset($_GET['page']) && basename($_SERVER['REQUEST_URI'])){
       //$_GET['page'] = basename($_SERVER['REQUEST_URI']);
-      $subject = basename($_SERVER['REQUEST_URI']);
+      $subject = $_SERVER['REQUEST_URI'];
       $pattern = '/toolbox/dashboard/([0-9]*)?/';
       preg_match($pattern, $subject, $matches, PREG_OFFSET_CAPTURE, 3);
       var_dump($matches);
