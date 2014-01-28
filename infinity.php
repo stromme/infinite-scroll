@@ -1086,11 +1086,18 @@ class The_Infinite_Scroll {
     }
 
     //$total = 10+$loop->post_count;
+    echo "post count\n";
     var_dump($wp_query->post_count);
 
+    echo "page\n";
     var_dump($page);
 
+    echo "per page\n";
     var_dump($per_page);
+
+    echo "max num pages\n";
+    var_dump($wp_query->max_num_pages);
+
 
     //if($page>=floor($total/$per_page)){
       //die;
