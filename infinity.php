@@ -269,12 +269,13 @@ class The_Infinite_Scroll {
 	 * @return null
 	 */
 	function action_template_redirect() {
-    echo current_theme_supports( 'infinite-scroll' );
 		// Check that we support infinite scroll, and are on the home page.
 		if ( ! current_theme_supports( 'infinite-scroll' ) || ! self::archive_supports_infinity() )
 			return;
 
 		$id = self::get_settings()->container;
+
+    echo "<br /><br /><br />".'--';
 
 		// Check that we have an id.
 		if ( empty( $id ) )
