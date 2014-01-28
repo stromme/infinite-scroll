@@ -598,7 +598,9 @@ class The_Infinite_Scroll {
 	private function get_request_path() {
 		global $wp_rewrite;
 
+    echo "outside";
 		if ( $wp_rewrite->using_permalinks() ) {
+      echo "inside";
 			global $wp;
 
 			// If called too early, bail
