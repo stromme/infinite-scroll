@@ -279,7 +279,9 @@ class The_Infinite_Scroll {
 		if ( empty( $id ) )
 			return;
 
-    echo "<br /><br />";
+    echo "<!-- ";
+    var_dump(self::$settings['posts_args']);
+    echo " -->";
 
     // Force set time for custom arguments
     if(self::$settings['posts_args']){
