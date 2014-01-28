@@ -1093,7 +1093,6 @@ class The_Infinite_Scroll {
 
     $results['page'] = $page;
     $results['max_page'] = $wp_query->max_num_pages;
-    $results['requesturl'] = basename($_SERVER['REQUEST_URI']);
 
     if($page>($wp_query->max_num_pages)){
       echo "inside";
