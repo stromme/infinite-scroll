@@ -269,7 +269,7 @@ class The_Infinite_Scroll {
 	 * @return null
 	 */
 	function action_template_redirect() {
-    echo "inside";
+    echo current_theme_supports( 'infinite-scroll' );
 		// Check that we support infinite scroll, and are on the home page.
 		if ( ! current_theme_supports( 'infinite-scroll' ) || ! self::archive_supports_infinity() )
 			return;
