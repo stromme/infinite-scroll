@@ -331,10 +331,6 @@ class The_Infinite_Scroll {
         }
       }
 
-      if($_GET['infinity']=='scrolling'){
-        var_dump($infinity_posts);
-      }
-
       $args = self::$settings['posts_args'];
       $exclude = (isset($args['exclude']))?$args['exclude']:'';
       unset($args['exclude']);
@@ -375,8 +371,6 @@ class The_Infinite_Scroll {
       }
     }
 
-    echo "<br /><br />";
-
 		// Bail if there are not enough posts for infinity.
 		if ( ! self::set_last_post_time() )
 			return;
@@ -393,6 +387,11 @@ class The_Infinite_Scroll {
 		add_action( 'wp_head', array( $this, 'action_wp_head' ), 2 );
 
 		add_action( 'wp_footer', array( $this, 'action_wp_footer' ), 99999999 );
+
+
+    if($_GET['infinity']=='scrolling'){
+      var_dump($infinity_posts);
+    }
 
 		add_filter( 'infinite_scroll_results', array( $this, 'filter_infinite_scroll_results' ) );
 	}
