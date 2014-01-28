@@ -1085,23 +1085,11 @@ class The_Infinite_Scroll {
       $results['type'] = 'empty';
     }
 
-    //$total = 10+$loop->post_count;
-    echo "post count\n";
-    var_dump($wp_query->post_count);
+    if($page>$wp_query->max_num_pages){
+      do_action( 'infinite_scroll_empty' );
+      $results['type'] = 'empty';
+    }
 
-    echo "page\n";
-    var_dump($page);
-
-    echo "per page\n";
-    var_dump($per_page);
-
-    echo "max num pages\n";
-    var_dump($wp_query->max_num_pages);
-
-
-    //if($page>=floor($total/$per_page)){
-      //die;
-    //}
 		echo json_encode( apply_filters( 'infinite_scroll_results', $results ) );
 		die;
 	}
