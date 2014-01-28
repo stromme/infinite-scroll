@@ -269,6 +269,7 @@ class The_Infinite_Scroll {
 	 * @return null
 	 */
 	function action_template_redirect() {
+    echo "inside";
 		// Check that we support infinite scroll, and are on the home page.
 		if ( ! current_theme_supports( 'infinite-scroll' ) || ! self::archive_supports_infinity() )
 			return;
@@ -598,9 +599,7 @@ class The_Infinite_Scroll {
 	private function get_request_path() {
 		global $wp_rewrite;
 
-    echo "outside";
 		if ( $wp_rewrite->using_permalinks() ) {
-      echo "inside";
 			global $wp;
 
 			// If called too early, bail
