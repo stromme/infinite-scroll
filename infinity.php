@@ -994,10 +994,6 @@ class The_Infinite_Scroll {
       $loop->max_num_pages = round($loop->found_posts/$per_page);
       $loop->posts         = $loaded_posts;
       $wp_query = $loop;
-      $total = 10+$loop->post_count;
-      if($page>=floor($total/$per_page)){
-        die;
-      }
       unset($loop);
       unset($infinity_posts);
       unset($loaded_posts);
@@ -1088,6 +1084,17 @@ class The_Infinite_Scroll {
       do_action( 'infinite_scroll_empty' );
       $results['type'] = 'empty';
     }
+
+    //$total = 10+$loop->post_count;
+    var_dump($wp_query->post_count);
+
+    var_dump($page);
+
+    var_dump($per_page);
+
+    //if($page>=floor($total/$per_page)){
+      //die;
+    //}
 		echo json_encode( apply_filters( 'infinite_scroll_results', $results ) );
 		die;
 	}
