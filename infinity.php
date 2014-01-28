@@ -388,11 +388,6 @@ class The_Infinite_Scroll {
 
 		add_action( 'wp_footer', array( $this, 'action_wp_footer' ), 99999999 );
 
-
-    if($_GET['infinity']=='scrolling'){
-      var_dump($infinity_posts);
-    }
-
 		add_filter( 'infinite_scroll_results', array( $this, 'filter_infinite_scroll_results' ) );
 	}
 
