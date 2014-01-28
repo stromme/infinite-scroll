@@ -331,7 +331,9 @@ class The_Infinite_Scroll {
         }
       }
 
-      echo "<br /><br />";
+      if($_GET['infinity']=='scrolling'){
+        var_dump($infinity_posts);
+      }
 
       $args = self::$settings['posts_args'];
       $exclude = (isset($args['exclude']))?$args['exclude']:'';
