@@ -1023,6 +1023,8 @@ class The_Infinite_Scroll {
 
     $results = array();
 
+    var_dump($query_args);
+
     if ( have_posts() ) {
 
       // Fire wp_head to ensure that all necessary scripts are enqueued. Output isn't used, but scripts are extracted in self::action_wp_footer.
