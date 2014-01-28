@@ -994,6 +994,7 @@ class The_Infinite_Scroll {
       $loop->max_num_pages = round($loop->found_posts/$per_page);
       $loop->posts         = $loaded_posts;
       $wp_query = $loop;
+      var_dump($loop->post_count);
       unset($loop);
       unset($infinity_posts);
       unset($loaded_posts);
