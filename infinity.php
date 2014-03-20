@@ -1091,7 +1091,6 @@ class The_Infinite_Scroll {
     }
 
     if($page>($wp_query->max_num_pages)){
-      echo "inside";
       do_action( 'infinite_scroll_empty' );
       $results = array('type'=>'empty');
     }
