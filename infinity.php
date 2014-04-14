@@ -845,6 +845,11 @@ class The_Infinite_Scroll {
     if(self::get_settings()->posts_args){
       $infinity_posts = array();
 
+      if(isset($_GET['type']) && $_GET['type']!=''){
+        self::$settings['posts_args']['post_type'] = array($_GET['type']);
+        if($_GET['type']!='review') $custom_fetch_with_comments = false;
+      }
+
       if($custom_fetch_with_comments){
         $args = (self::$settings['posts_args']['comment_args'])?self::$settings['posts_args']['comment_args']:array(
           'orderby' => 'modified',
@@ -998,6 +1003,7 @@ class The_Infinite_Scroll {
       $loop->found_posts   = count($infinity_posts);
       $loop->max_num_pages = round($loop->found_posts/$per_page);
       $loop->posts         = $loaded_posts;
+
       $wp_query = $loop;
       unset($loop);
       unset($infinity_posts);

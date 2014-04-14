@@ -193,7 +193,12 @@ Scroller.prototype.refresh = function() {
 
 	// Fire the ajax request.
   var new_ajaxurl = infiniteScroll.settings.ajaxurl;
-  new_ajaxurl = new_ajaxurl.replace("?infinity=scrolling", this.page+"/"+"?infinity=scrolling");
+  var add_params = '';
+  if(infiniteScroll.scroller.type){
+    add_params =  '&type='+infiniteScroll.scroller.type+'&page='+infiniteScroll.scroller[infiniteScroll.scroller.type+'_page'];
+    infiniteScroll.scroller[infiniteScroll.scroller.type+'_page']+=1;
+  }
+  new_ajaxurl = new_ajaxurl.replace("?infinity=scrolling", this.page+"/"+"?infinity=scrolling"+add_params);
 	jqxhr = $.get( new_ajaxurl, query );
 
 	// Allow refreshes to occur again if an error is triggered.
