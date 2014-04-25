@@ -198,6 +198,17 @@ Scroller.prototype.refresh = function() {
     add_params =  '&type='+infiniteScroll.scroller.type+'&page='+infiniteScroll.scroller[infiniteScroll.scroller.type+'_page'];
     infiniteScroll.scroller[infiniteScroll.scroller.type+'_page']+=1;
   }*/
+  if(this.type && typeof this.type!='undefined'){
+    add_params =  '&type='+this.type+'&page='+this[this.type+'_page'];
+    if(typeof this[this.type+'_page']=='undefined'){
+      this[this.type+'_page']=1;
+      console.log('in');
+    }
+    this[this.type+'_page']+=1;
+    console.log(this.type);
+    console.log(this[this.type+'_page']);
+  }
+
   new_ajaxurl = new_ajaxurl.replace("?infinity=scrolling", this.page+"/"+"?infinity=scrolling"+add_params);
 	jqxhr = $.get( new_ajaxurl, query );
 
