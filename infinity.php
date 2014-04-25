@@ -808,9 +808,9 @@ class The_Infinite_Scroll {
     if(!isset($_GET['page']) && basename($_SERVER['REQUEST_URI'])){
       //$_GET['page'] = basename($_SERVER['REQUEST_URI']);
       $subject = $_SERVER['REQUEST_URI'];
-      $pattern = '/\/toolbox\/dashboard\/([0-9]*)?/';
+      $pattern = '/(\/toolbox\/dashboard\/|\/showroom\/|\/reviews\/|\/)([0-9]*)?\//';
       preg_match($pattern, $subject, $matches);
-      $_GET['page'] =  isset($matches[1])?$matches[1]:9999;
+      $_GET['page'] =  isset($matches[2])?$matches[2]:9999;
     }
 
 		if ( ! isset( $_GET['page'] ) || ! current_theme_supports( 'infinite-scroll' ) )
