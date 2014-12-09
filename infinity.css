@@ -10,8 +10,15 @@
 	color: #000;
 	display: block;
 	height: 28px;
-	margin: 10px;
+	padding: 20px;
 	text-indent: -9999px;
+}
+.infinite-loader .spinner {
+  left: 50% !important;
+  width: 0;
+  height: 0;
+  padding: 7px 10px;
+  margin-left: -15px;
 }
 #infinite-handle span {
 	background: #333;
