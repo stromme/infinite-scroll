@@ -933,8 +933,8 @@ class The_Infinite_Scroll {
           }
           $reset_infinity = array_merge($infinity_posts);
           $rest_infinity = array();
-          if(count($reset_infinity)>10){
-            for($i=10;$i<count($reset_infinity);$i++){
+          if(count($reset_infinity)>$per_page){
+            for($i=$per_page;$i<count($reset_infinity);$i++){
               array_push($rest_infinity, $reset_infinity[$i]);
             }
           }
